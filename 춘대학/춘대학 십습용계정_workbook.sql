@@ -1,6 +1,7 @@
+--1
 SELECT DEPARTMENT_NAME AS "학과 명", category AS "계열"
 FROM tb_department;
-
+--2
 SELECT DEPARTMENT_NAME || '의 정원은 '||capacity ||'명 입니다.' AS "학과별 정원"
 FROM tb_department;
 
@@ -27,7 +28,8 @@ WHERE DEPARTMENT_NO IS NULL;
 
 SELECT STUDENT_NAME 
 FROM tb_student
-WHERE DEPARTMENT_NO IS NULL;
+JOIN tb_department USING(DEPARTMENT_NO)
+WHERE DEPARTMENT_NAME IS NULL;
 
 SELECT PREATTENDING_CLASS_NO
 FROM tb_class
@@ -109,11 +111,15 @@ GROUP BY STUDENT_NAME
 HAVING COUNT(*) > 1
 ORDER BY STUDENT_NAME;
 
-SELECT SUBSTR(term_no,1,4)AS 년도, SUBSTR(term_no,5,2),AVG(POINT)
+SELECT SUBSTR(term_no,1,4)AS 년도, 
+        NVL(SUBSTR(term_no,5,2),' '),
+        ROUND(AVG(POINT),1)
 FROM TB_GRADE
 WHERE STUDENT_NO = 'A112113'
-GROUP BY SUBSTR(term_no,1,4) ,SUBSTR(term_no,5,2),SUBSTR(term_no,1,4)
+GROUP BY Rollup(SUBSTR(term_no,1,4) ,SUBSTR(term_no,5,2))
 ORDER BY 1;
+-- 합계의 NULL 어케 하쥬?
+
 
 --------------------------------------------------------------------------------
 -- 1.
@@ -195,4 +201,77 @@ JOIN tb_department  USING (DEPARTMENT_NO)
 JOIN tb_grade G USING (STUDENT_NO )
 JOIN tb_class USING (CLASS_NO)
 WHERE TERM_NO LIKE '2007%'
-AND CLASS_NAME = '인간관계론'
+AND CLASS_NAME = '인간관계론';
+
+-- 13.
+SELECT CLASS_NAME, DEPARTMENT_NAME
+FROM tb_department
+JOIN tb_class USING (DEPARTMENT_NO)
+LEFT JOIN TB_CLASS_PROFESSOR USING (CLASS_NO)
+WHERE CATEGORY = '예체능'
+AND PROFESSOR_NO IS NULL;
+
+-- 14. 1. 서반아어학과, 2. 지도교수 없음 미지정으로
+SELECT STUDENT_NAME AS 학생이름, NVL(PROFESSOR_NAME,'지도교수 미지정') AS 지도교수
+FROM tb_student
+JOIN tb_department USING(DEPARTMENT_NO)
+LEFT JOIN tb_professor ON (COACH_PROFESSOR_NO  = PROFESSOR_NO)
+WHERE DEPARTMENT_NAME = '서반아어학과';
+
+-- 15. 1.휴학생 아냐 , 2. 평점이 4.0이상,
+SELECT STUDENT_NO,STUDENT_NAME,DEPARTMENT_NAME,ROUND(AVG(point),7) AS 평점
+FROM tb_grade
+JOIN tb_student USING(STUDENT_NO)
+JOIN tb_department USING(DEPARTMENT_NO)
+WHERE tb_student.absence_yn = 'N'
+HAVING ROUND(AVG(point),7) >= 4.0
+GROUP BY STUDENT_NO,STUDENT_NAME,DEPARTMENT_NAME
+ORDER BY 1;
+
+-- 16. 1. 환경조경학과 , 과목별 평점
+SELECT CLASS_NO, CLASS_NAME, AVG(POINT)
+FROM tb_grade
+JOIN tb_class C USING (CLASS_NO)
+JOIN tb_department D ON (C.DEPARTMENT_NO = D.DEPARTMENT_NO)
+WHERE D.DEPARTMENT_NAME  = '환경조경학과' 
+AND POINT IS NOT NULL
+AND CLASS_TYPE = '전공선택'
+GROUP BY CLASS_NO, CLASS_NAME;
+
+-- 17. 1. 최경희 학생 과 같은 과
+SELECT STUDENT_NAME, NVL(STUDENT_ADDRESS,' ')
+FROM tb_student
+JOIN tb_department USING(DEPARTMENT_NO)
+WHERE DEPARTMENT_NAME = (
+                            SELECT DEPARTMENT_NAME
+                            FROM tb_department
+                            JOIN tb_student USING(DEPARTMENT_NO)
+                            WHERE STUDENT_NAME = '최경희');
+
+-- 18. 
+SELECT STUDENT_NO, STUDENT_NAME
+FROM(
+SELECT ROWNUM,STUDENT_NO, STUDENT_NAME
+FROM(
+SELECT STUDENT_NO, STUDENT_NAME , AVG(POINT)
+FROM tb_grade
+JOIN tb_student USING(STUDENT_NO)
+JOIN tb_department USING(DEPARTMENT_NO)
+WHERE DEPARTMENT_NAME = '국어국문학과'
+GROUP BY STUDENT_NO, STUDENT_NAME 
+ORDER BY 3 DESC)
+)
+WHERE ROWNUM <= 1;
+
+-- 19. 1.환경조경학과 의 계열학과별 평균점수
+SELECT DEPARTMENT_NAME , AVG(POINT)
+FROM tb_grade
+JOIN tb_student USING(STUDENT_NO)
+JOIN tb_department USING(DEPARTMENT_NO)
+WHERE CATEGORY = (
+                    SELECT CATEGORY
+                    FROM tb_department
+                    WHERE DEPARTMENT_NAME = '환경조경학과')
+GROUP BY DEPARTMENT_NAME
+
+
