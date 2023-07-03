@@ -28,7 +28,7 @@
     );
     
     * юз╥АгЭ
-    - ╧╝юз -(гя╠ш гя╠шюз╢Г 3╧ыюлф╝ ╓╩)
+    - ╧╝юз -(гя╠ш гя╠шюз╢Г 3╧ыюлф╝)
     CHAR(╧ыюлф╝ е╘╠Б) | VARCHAR2(╧ыюлф╝ е╘╠Б) => ╧щ╣Е╫ц е╘╠Б аЖа╓ гь╬ъгт
     > CHAR : цж╢К 2000╧ыюлф╝ ╠НаЖ аЖа╓ ╟║╢и . . аЖа╓гя ╧Эю╖ ╬х©║╪╜╦╦ ╫А╬ъгт  / ╟Ма╓ ╠Фюл (аЖа╓гя е╘╠Б╨╦╢ы ╢У юШю╨ ╟╙юл ╣И╬Н©м╣╣ ╟Ь╧Ию╦╥н ц╓©ЖаЭ!)
              ╟Ма╓╣х ╠шюз╪Жюг ╣╔юлем╦╦юл ╢Ц╠Ф ╟Ф©Л ╩Г©К => юо╧щюШю╦╥н 'гя'╠шюз. (YN / MF)
@@ -105,7 +105,7 @@ INSERT INTO MEMBER VALUES(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     -©Ьго╢б ╣╔юлем╟╙ (ю╞х©гя гЭ╫дюг ╟╙) ╦╦ ю╞аЖго╠Б ю╖гь╪╜ ф╞а╓ дц╥Ё©║ ╪Ёа╓го╢б а╕╬Юа╤╟г
     -╣╔юлем ╧╚╟А╪╨ ╨╦юЕю╩ ╦ЯюШю╦╥н гя╢ы!
     
-    * а╬╥Ы : NOT NULL, UNIQUE, CHECK, PRIMARY KEY
+    * а╬╥Ы : NOT NULL, UNIQUE, CHECK, PRIMARY KEY, foreign key
 */
 
 /*
@@ -405,9 +405,234 @@ INSERT INTO MEM
 VALUES ( 1, 'USER01','PASS01','╫Пх╚╧н','Ё╡',NULL,NULL,NULL);
 INSERT INTO MEM
 VALUES ( 2, 'USER02','PASS02','╦╝д╡юн',NULL,NULL,NULL,10);
-INSERT INTO MEM
-VALUES ( 3, 'USER03','PASS03','╦╝²²©Ж','Ё╡',NULL,NULL,40);
+--INSERT INTO MEM VALUES ( 3, 'USER03','PASS03','╦╝²²©Ж','Ё╡',NULL,NULL,40);
 -- ORA-02291: integrity constraint (DDL.SYS_C007160) violated - parent key not fou
+INSERT INTO MEM
+VALUES ( 3, 'USER03','PASS03','╦╝²²©Ж','Ё╡',NULL,NULL,20);
+INSERT INTO MEM
+VALUES ( 4, 'USER04','PASS04','©оц╩х╡',NULL,NULL,NULL,10);
+
+-- MEM_GRADE (╨н╦Певюл╨М) MEM (юз╫девюл╨М)
+-- юл▀  ╨н╦Певюл╨М(MEM_GRADE)©║╪╜ ╣╔юлем╟╙ю╩ ╩Ха╕гр ╟Ф©Л ╬Н╤╡ ╧╝а╕╟║ ╧ъ╩Щгр╠Н?
+-- ╣╔юлем ╩Ха╕ : DELETE FROM евюл╨М╦М WHERE а╤╟г;
+
+--> MEM_GRADE евюл╨М©║╪╜ 10╧Ь ╩Ха╕
+DELETE FROM MEM_GRADE
+WHERE GRADE_CODE = 10;
+-- ORA-02292: integrity constraint (DDL.SYS_C007160) violated - child record found
+--> юз╫девюл╨М (MEM)©║ 10 юл╤С╢б ╟╙ю╩ ╩Г©Кго╟М юж╠Б ╤╖╧╝©║ ╩Ха╕╟║ ╬х╣й!
+
+DELETE FROM MEM_GRADE
+WHERE GRADE_CODE = 30;
+--> юз╫девюл╨М (MEM)©║ 30юл╤С╢б ╟╙ю╩ ╩Г©Кго╟М южаЖ ╬й╠Б ╤╖╧╝©║ ╩Ха╕╟║ юъ╣й!!
+
+--> юз╫девюл╨М©║ юл╧л ╩Г©Кго╟М юж╢б ╟╙юл южю╩╟Ф©Л
+--> ╨н╦Певюл╨М╥н╨нем ╧╚а╤╟г ╩Ха╕╟║ ╬х╣г╟т го╢б "╩Ха╕а╕гя"©и╪гюл ╟и╥аюжю╫!
+
+ROLLBACK; -- д©╧тюлюЭюг ╫ца║ю╦╥н ╣╧╦╡
+
+SELECT * FROM MEM_GRADE;
+
+-----------------------------------------------------------------------------------------------------------
+/*
+    юз╫д евюл╨М ╩Щ╪╨╫ц ©э╥║е╟ а╕╬Юа╤╟гю╩ ╨н©╘гр ╤╖ ╩Ха╕©и╪м аЖа╓╟║╢и
+    * ╩Ха╕©и╪г : ╨н╦Певюл╨Мюг ╣╔юлем ╩Ха╕╫ц ╠в ╣╔юлем╦╕ ╩Г©Кго╟М юж╢б юз╫девюл╨М ╟╙ю╩ 
+             ╬Н╤╩╟т цЁ╦╝гр╟мюнаЖ аЖа╓гр ╪Ж юж╢б ©и╪г
+    - ON DELETE RESTRICTED (╠Б╨╩╟╙) : ╩Ха╕а╕гя©и╪гю╦╥н, юз╫д ╣╔юлем╥н ╬╡юл╢б ╨н╦П╣╔юлем╢б ╩Ха╕ ╬х╣г╟т╡Ш !
+    - ON DELETE SET NULL : ╨н╦П╣╔юлем╦╕ ╩Ха╕╫ц гь╢Г ╣╔юлем╦╕ ╬╡╟М юж╢б юз╫девюлемюг ╟╙ю╩ NULL╥н ╨╞╟Ф
+    - ON DELETE CASCADE : ╨н╦П╣╔юлем╦╕ ╩Ха╕╫ц гь╢Г ╣╔юлем╦╕ ╬╡╟М юж╢б юз╫д ╣╔юлем╣╣ ╟╟юл ╩Ха╕╫це╢
+*/
+
+DROP TABLE MEM;
+
+-- ON DELETE SET NULL
+CREATE TABLE MEM(
+    MEM_NO NUMBER PRIMARY KEY ,
+    MEM_ID VARCHAR2(20) NOT NULL UNIQUE,
+    MEM_PWD VARCHAR2(20) NOT NULL,
+    MEM_NAME VARCHAR2(20) NOT NULL,
+    GENDER CHAR(3) CHECK(GENDER IN('Ё╡','©╘')), -- дц╥Ё╥╧╨╖╧Ф╫д
+    PHONE VARCHAR2(13),
+    EMAIL VARCHAR2(50),
+    GRADE_ID NUMBER REFERENCES MEM_GRADE(GRADE_CODE) ON DELETE SET NULL -- дц╥Ё╥╧╨╖╧Ф╫д
+    -- FOREIGKEY(GRADE_ID) REFERENCES MEM_GRADE(GRADE_CODE)
+);
+
+
+INSERT INTO MEM
+VALUES ( 1, 'USER01','PASS01','╫Пх╚╧н','Ё╡',NULL,NULL,NULL);
+INSERT INTO MEM
+VALUES ( 2, 'USER02','PASS02','╦╝д╡юн',NULL,NULL,NULL,10);
+INSERT INTO MEM
+VALUES ( 3, 'USER03','PASS03','╦╝²²©Ж','Ё╡',NULL,NULL,20);
+INSERT INTO MEM
+VALUES ( 4, 'USER04','PASS04','©оц╩х╡',NULL,NULL,NULL,10);
+
+SELECT * FROM MEM;
+
+COMMIT;
+
+-- 10╧Ь ╣Н╠ч ╩Ха╕
+DELETE FROM MEM_GRADE
+WHERE GRADE_CODE = 10;
+-- юъ ╩Ха╕╣й!! (╢э, 10ю╩ ╬╡╟Мюж╢Ь юз╫д╣╔юлемюг ╟╙ю╨ NULL╥н ╨╞╟Ф)
+
+ROLLBACK;
+
+-- ON DELETE CASCADE
+DROP TABLE MEM;
+
+CREATE TABLE MEM(
+    MEM_NO NUMBER PRIMARY KEY ,
+    MEM_ID VARCHAR2(20) NOT NULL UNIQUE,
+    MEM_PWD VARCHAR2(20) NOT NULL,
+    MEM_NAME VARCHAR2(20) NOT NULL,
+    GENDER CHAR(3) CHECK(GENDER IN('Ё╡','©╘')), -- дц╥Ё╥╧╨╖╧Ф╫д
+    PHONE VARCHAR2(13),
+    EMAIL VARCHAR2(50),
+    GRADE_ID NUMBER REFERENCES MEM_GRADE(GRADE_CODE) ON DELETE CASCADE -- дц╥Ё╥╧╨╖╧Ф╫д
+);
+
+SELECT * FROM MEM;
+
+DELETE FROM MEM_GRADE
+WHERE GRADE_CODE = 10;
+
+/*
+    < DEFAULT ╠Б╨╩╟╙ > ** а╕╬Юа╤╟г ╬ф╢т **
+    дц╥Ёю╩ ╪╠а╓гоаЖ ╬й╟М INSERT╫ц NULLюл ╬ф╢я ╠Б╨╩╟╙ю╩ INSERTго╟Мюз гр ╤╖ ╪╪фцгь╣я ╪Ж юж╢б ╟╙
+*/
+    
+    DROP TABLE MEMBER;
+    
+CREATE TABLE MEMBER (
+    MEM_NO NUMBER PRIMARY KEY ,
+    MEM_NAME VARCHAR2(20) NOT NULL,
+    MEM_AGE NUMBER,
+    HOBBY VARCHAR2(20) DEFAULT '╬Ью╫',
+    ENROLL_DATE DATE DEFAULT SYSDATE
+);
+SELECT * FROM MEMBER;
+
+-- INSERT INTO евюл╨М╦М VALUES(╟╙1, ╟╙2,...)
+
+INSERT INTO MEMBER VALUES (1,'╫Пх╚╦Ю',20,'цЮ╠╦','22/01/01');
+INSERT INTO MEMBER VALUES (2, '╦╝д╡юн', NULL,NULL,NULL);
+INSERT INTO MEMBER VALUES (3, '╦╝²²©Ж', NULL,DEFAULT,DEFAULT); -- Ё╩╟║ ╪ЁюЗгя ╣ПфЗф╝╟╙ю╦╥н ╣И╬Н╢б╟╗..
+
+
+-- INSERT INTO евюл╨М╦М(дц╥Ё╦М, дц╥Ё╦М) VALUES (╟╙1, ╟╙2);
+-- NOT NULLюн╟мю╨ ╡ю юш╪╨гь╬ъгт
+INSERT INTO MEMBER (MEM_NO, MEM_NAME) VALUES (4,'©о╜═х╡');
+-- ╪╠ец╣гаЖ ╬йю╨ дц╥Ё ╠Б╨╩юШю╦╥н NULLюл ╣И╬Н╟╗
+-- ╢э, гь╢Г дц╥Ё©║ DEFAULT ╟╙юл южю╩ ╟Ф©Л NULLюл ╬ф╢я DEFAULT ╟╙юл ╣И╬Н╟ё╢ы.!
+
+--=================================================================================================================
+
+/*
+     !!!!!!!!!!!!!!!!! KH ╟Ха╓©║╪╜╦╦ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     < SUBQUERY╦╕ юл©Кгя евюл╨М ╩Щ╪╨ >
+     евюл╨М ╨╧╩Г ╤ъ╢б ╟ЁЁД
+     
+     [ г╔гЖ╫д ]
+     CREATE TABLE евюл╨М╦М
+     AS ╪╜╨ЙдУ╦╝;
+*/
+
+-- EMPLOYEE евюл╨Мю╩ ╨╧а╕гя ╩У╥н©Н евюл╨М ╩Щ╪╨
+CREATE TABLE EMPLOYEE_COPY 
+AS SELECT * FROM EMPLOYEE;
+
+SELECT * FROM EMPLOYEE_COPY;
+--> дц╥Ё, ╣╔юлем╟╙, а╕╬Юа╤╟г ╟╟ю╨ ╟Ф©Л NOT NULL╦╦ ╨╧╩Г╣й
+
+
+CREATE TABLE EMPLOYEE_COPY2
+AS SELECT EMP_ID, EMP_NAME, SALARY, BONUS 
+   FROM EMPLOYEE--евюл╨Мюг ╠╦а╤╦╦ ╟║а╝©ю╟М ╫м╢ы.
+   WHERE 1 = 0; -- ╧╚а╤╟г FALSEюн а╤╟г : ╠╦а╤╦╦ю╩ ╨╧╩Гго╟Мюз гр ╤╖ ╬╡юл╢б ╠╦╧╝ (╣╔юлем ╟╙ю╨ гй©Д ╬Ью╩ ╤╖)
+
+SELECT * FROM EMPLOYEE_COPY2;
+
+CREATE TABLE EMPLOYEE_COPY3
+AS SELECT EMP_ID, EMP_NAME, SALARY, SALARY * 12 AS ©╛╨ю╫╨
+FROM EMPLOYEE
+WHERE 1=1;
+-- ORA-00998: must name this expression with a column alias
+-- alias : ╨╟д╙
+--> ╪╜╨ЙдУ╦╝ SELECT юЩ©║ ╩Й╪З╫д ╤г╢б гт╪Ж╫д ╠Б╪З╣х ╟Ф©Л ╧щ╣Е╫ц ╨╟д╙ю╩ аЖа╓гь╬ъ╣й!
+
+SELECT * FROM EMPLOYEE_COPY3;
+
+----------------------------------------------------------------------------------------------------------------
+/*
+    * евюл╨М ╢ы ╩Щ╪╨╣х хд©║ ╣з╢й╟т а╕╬Юа╤╟г цъ╟║╣г╢б ╟Ф©Л
+    
+    ALTER TABLE евюл╨М╦М ╨╞╟Фгр Ё╩©К
+    
+    - PRIMARY KEY  : ALTER TABLE евюл╨М╦М ADD PRIMARY KEY(дц╥Ё╦М);
+    - FOREIGN KEY  : ALTER TABLE евюл╨М╦М ADD FOREIGN KEY(дц╥Ё╦М)REFERENCES бЭа╤гревюл╨М╦М[(бЭа╤гр дц╥Ё╦М)];
+    - UNIQUE       : ALTER TABLE евюл╨М╦М ADD UNIQUE(дц╥Ё╦М);
+    - CHECK        : ALTER TABLE евюл╨М╦М ADD CHECK(дц╥Ё©║ ╢Кгя а╤╟г╫д);
+    - NOT NULL     : ALTER TABLE евюл╨М╦М MODIFY дц╥е╦М NOT NULL; ** ╬Ю╟ё ф╞юлгт
+*/
+
+-- ╪╜╨ЙдУ╦╝╦╕ юл©Кгь╪╜ ╨╧а╕гя евюл╨М NN а╕╬Юа╤╟г ╩╘╟М ╨╧а╕ ╬х╣й!
+-- EMPLOYEE_COPY евюл╨М©║ PRIMARY KEY а╕╬Юа╤╟г цъ╟║(EMP_ID)
+ALTER TABLE EMPLOYEE_COPY ADD PRIMARY KEY (EMP_ID);
+
+SELECT * FROM EMPLOYEE_COPY;
+
+-- EMPLYEE евюл╨М©║ DEPT_CODE©║ ©э╥║е╟ а╕╬Юа╤╟г цъ╟║ (бЭа╤го╢б евюл╨М(╨н╦П) : DEPARTMENT(DEPT_ID))
+ALTER TABLE EMPLOYEE ADD FOREIGN KEY(DEPT_CODE) REFERENCES DEPARTMENT; -- ╩Щ╥╚го╦И ╨н╦Певюл╨Мюг PK╥н юз╣© ╦ед╙╣й
+
+-- EMPLOYEE евюл╨М©║ JOB_CODE©║ ©э╥║е╟ а╕╬Юа╤╟г цъ╟║
+ALTER TABLE EMPLOYEE ADD FOREIGN KEY(JOB_CODE) REFERENCES JOB ;
+-- EMPLOYEE евюл╨М©║ SAL_LEVEL©║ ©э╥║е╟ а╕╬Юа╤╟г цъ╟║ (SAL_GRADE)
+ALTER TABLE EMPLOYEE ADD FOREIGN KEY(SAL_LEVEL)REFERENCES SAL_GRADE;
+-- DEPARTMENT евюл╨М©║ LOCATION_ID©║ ©э╥║е╟ а╕╬Ю цъ╟║ (LOCATION)
+ALTER TABLE DEPARTMENT ADD FOREIGN KEY(LOCATION_ID) REFERENCES LOCATION(LOCAL_CODE);
+
+SELECT * FROM DEPARTMENT;
+INSERT INTO DEPARTMENT VALUES('S1','ев╫╨ф╝╨н','S1');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -272,6 +272,24 @@ WHERE CATEGORY = (
                     SELECT CATEGORY
                     FROM tb_department
                     WHERE DEPARTMENT_NAME = '환경조경학과')
-GROUP BY DEPARTMENT_NAME
+GROUP BY DEPARTMENT_NAME;
 
+---------------------------------------------------------------------------------
 
+-- 1. 
+CREATE TABLE TB_CATEGORY(
+    NAME VARCHAR2(10),
+    USE_YN CHAR(1) DEFAULT 'Y'
+    );
+
+-- 2. 
+CREATE TABLE TB_CLASS_TYPE(
+    NO VARCHAR2(5) PRIMARY KEY,
+    NAME VARCHAR2(10)
+    );
+    
+-- 3. 
+ALTER TABLE TB_CATEGORY ADD PRIMARY KEY(NAME);
+
+-- 4. 
+ALTER TABLE  TB_CLASS_TYPE MODIFY NAME NOT NULL;
