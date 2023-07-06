@@ -438,5 +438,38 @@ SET STUDENT_SSN = SUBSTR(STUDENT_SSN,1,6);
 
 SELECT STUDENT_SSN FROM tb_student;
 
--- 7. 
-UPDATE 
+-- 7.  ÀÇÇÐ°ú ±è¸íÈÆ 200501 ÇÇºÎ»ý¸®ÇÐ Á¡¼ö 
+-- ÇÇºÎ ¹¹½Ã±â´Â ¾È³ª¿È
+UPDATE TB_GRADE
+SET POINT = 3.5
+WHERE (TERM_NO, STUDENT_NO, CLASS_NO ,POINT) IN (
+  SELECT TERM_NO, STUDENT_NO, CLASS_NO ,POINT
+  FROM TB_GRADE 
+  JOIN tb_student USING(STUDENT_NO)
+  JOIN tb_department USING(DEPARTMENT_NO)
+  WHERE TERM_NO = 200501 
+    AND STUDENT_NAME = '±è¸íÈÆ'
+    AND department_NAME = 'ÀÇÇÐ°ú'
+); 
+
+-- 8. 
+DELETE FROM tb_grade
+WHERE  (TERM_NO, STUDENT_NO, CLASS_NO ,POINT) IN (
+SELECT TERM_NO, STUDENT_NO, CLASS_NO ,POINT
+FROM TB_GRADE
+JOIN tb_student USING(STUDENT_NO)
+WHERE  ABSENCE_YN  = 'Y'
+);
+
+SELECT *
+FROM tb_grade;
+
+
+
+
+
+
+
+
+
+
