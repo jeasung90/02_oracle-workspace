@@ -275,7 +275,7 @@ BEGIN
     FROM EMPLOYEE
     WHERE EMP_ID = '&사번';
     
-    IF BONUS IS NULL THEN SALBON := TO_CHAR(SAL,'L999,999,999') ;
+    IF BONUS IS NULL THEN SALBON := TO_CHAR((SAL*12),'L999,999,999') ;
     ELSE SALBON := TO_CHAR((SAL+SAL*BONUS)*12,'L999,999,999');
     END IF;
 
@@ -285,30 +285,192 @@ END;
 /
 
 
+DECLARE
+    EMP EMPLOYEE%ROWTYPE;
+    SALARY NUMBER;
+BEGIN
+    SELECT *
+    INTO EMP
+    FROM EMPLOYEE
+    WHERE EMP_ID = '&사번';
+    
+    IF EMP.BONUS IS NULL THEN
+        SALARY := EMP.SALARY * 12;
+    ELSE
+        SALARY := (EMP.SALARY + EMP.SALARY * EMP.BONUS) * 12;
+    END IF;
+    
+    DBMS_OUTPUT.put_line(EMP.EMP_NAME || '님의 연봉은 ' || TO_CHAR(SALARY,'L999,999,999') || '입니다.');
+END;
+/
 
+-------------------------------------------------------------------------------------
+-- < 반복문 > 
+/*
+    1) BASIC LOOP문
+    
+    [ 표현식 ]
+    LOOP
+        반복적으로 실행할 구문
+        * 반복문을 빠져나갈 수 있는 구문
+    END LOOP;
+    
+    * 반복문을 빠져나갈 수  있는 구문 (2가지)
+    1) IF 조건식 THEN EXIT END FI;
+    2) EXIT THEN 조건식;
+    
+*/
 
+-- 1 ~ 5 까지 순차적으로 1씩 증가
+DECLARE
+    I NUMBER :=1;
+BEGIN
+    
+    LOOP
+        DBMS_OUTPUT.put_line(I);
+        I := I +1 ;
+        
+        IF I = 6 THEN EXIT; END IF;
+    END LOOP;
+END;
+/
 
+------------------------------------------------------------------------------------
+/*
+    2) FOR LOOP문
+    
+    [표현식]
+    FOR 변수 IN [REVERSE -> 점점 작아지게 하고 싶으면..] 초기값..최종값
+    LOOP
+    
+    END LOOP;
+*/
 
+BEGIN
+    FOR I IN 1..5
+    LOOP
+        DBMS_OUTPUT.put_line(I);
+    END LOOP;
+END;
+/
 
+BEGIN
+    FOR I IN REVERSE 1..5
+    LOOP
+        DBMS_OUTPUT.put_line(I);
+    END LOOP;
+END;
+/
 
+DROP TABLE TEST;
 
+CREATE TABLE TEST(
+    TNO NUMBER PRIMARY KEY,
+    TATE DATE
+);
 
+SELECT * FROM TEST;
 
+CREATE SEQUENCE SEQ_TNO
+START WITH 1
+INCREMENT BY 2
+NOCACHE
+NOCYCLE;
 
+BEGIN
+    FOR I IN 1..100 -- 기본적으로는 1씩 증가
+    LOOP
+        INSERT INTO TEST VALUES(SEQ_TNO.NEXTVAL,SYSDATE);
+    END LOOP;
+END;
+/
 
+SELECT * FROM TEST;
 
+-----------------------------------------------------------------------------------
+/*
+    3) WHILE LOOP문
+    
+    [표현식]
+    WHILE 반복문이 수행될 조건
+    LOOP
+        반복적으로 수행할 구문
+    ENDLOOP
+*/
+DECLARE
+    I NUMBER := 1;
+BEGIN
+    
+    WHILE  I<6
+    LOOP
+        DBMS_OUTPUT.put_line(I);
+        I := I+1;
+    END LOOP;
+    
+END;
+/
+-----------------------------------------------------------------------------------
+/*
+    3. 예외처리부
+    
+    예외(EXCEPTION) : 실행 중 발생하는 오류
+    
+    [표현식]
+    EXCEPTION
+        WHEN 예외명1 THEN 예외처리구문1;
+        WHEN 예외명2 THEN 예외처리구문2;
+        ....
+        WHEN OTHERS THEN 예외처리구문N;
+        
+        * 예외명에 뭘 써야할까?
+        * 시스템 예외 (오라클에서 미리 정의해둔 예외)
+        - NO_DATA_FOUND : SELECT 한 결과가 한 행도 없을 경우
+        - TOO_MANY_ROWS : SELECT 한 결과가 여러행일 경우
+        - ZERO_DIVEDE : 0으로 나눌 때
+        - DUP_VAL_ON_INDEX : UNIQUE 제약조건에 위배됐을 경우
+*/
 
+-- 사용자가 입력한 수로 나눗셈 연산한 결과 출력
+DECLARE
+    RESULT NUMBER;
+BEGIN
+    result := 10 / '&숫자';
+    DBMS_OUTPUT.put_line('결과 : '||RESULT);
+    
+EXCEPTION
+    --WHEN ZERO_DIVIDE THEN DBMS_OUTPUT.put_line('0으로 나눌 수 없습니다.');
+    WHEN OTHERS THEN DBMS_OUTPUT.put_line('0으로 나눌 수 없습니다.');
+END;
+/
+-- DUP_VAL_ON_INDEX : UNIQUE 제약조건에 위배됐을 경우
+-- UNIQUE 제약조건 위반
+BEGIN
+    UPDATE EMPLOYEE
+    SET EMP_ID = '&변경할사번'
+    WHERE EMP_NAME = '노옹철';
 
+EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN DBMS_OUTPUT.put_line('이미 존재하는 사원');
+END;
+/
+DECLARE
+    EID EMPLOYEE.EMP_ID%TYPE;
+    ENAME EMPLOYEE.EMP_NAME%TYPE;
+BEGIN
+    SELECT EMP_ID, EMP_NAME
+    INTO EID, ENAME
+    FROM EMPLOYEE
+    WHERE MANAGER_ID = '&사수사번';
+    
+    DBMS_OUTPUT.put_line('해당 사수의 이름은 : '||ENAME||', 사번은 :'||EID);
 
+EXCEPTION
+    WHEN TOO_MANY_ROWS THEN  DBMS_OUTPUT.put_line('너무 많은 행이 조회됐습니다.');
+    WHEN NO_DATA_FOUND THEN  DBMS_OUTPUT.put_line('해당 사수를 가진 사원이 없습니다.');
 
-
-
-
-
-
-
-
-
+    
+END;
+/
 
 
 
