@@ -3,7 +3,7 @@
     
     내가 지정한 테이블에 INSERT, UPDATE, DELETE 등 DML문에 의해 변경사항이 생길 때
     (테이블에 이벤트가 발생했을 때)
-    자동으로 매번 실행할 내용을 미리 정으해둘 수 있느 객체
+    자동으로 매번 실행할 내용을 미리 정해둘 수 있는 객체
     
     EX)
     회원탈퇴시 기존의 회원테이블에 데이터를 DELETE 후 곧바로 탈퇴한 회원들만 따로 보관하는 테이블에 자동으로 INSERT 처리해야된다!
@@ -149,7 +149,8 @@ BEGIN
             UPDATE tb_prouct 
             SET STOCK = STOCK + :NEW.AMOUNT
             WHERE PCODE = :NEW.PCODE;
-            DBMS_OUTPUT.put_line('정상적으로 입고처리되었습니다.);
+            
+            DBMS_OUTPUT.put_line('정상적으로 입고처리되었습니다.');
 
     END IF;
     
@@ -160,7 +161,7 @@ BEGIN
             SET STOCK = STOCK - :NEW.AMOUNT
             WHERE PCODE = :NEW.PCODE;
             
-            DBMS_OUTPUT.put_line('정상적으로 출고처리되었습니다.);
+            DBMS_OUTPUT.put_line('정상적으로 출고처리되었습니다.');
     END IF;
 END;
 /

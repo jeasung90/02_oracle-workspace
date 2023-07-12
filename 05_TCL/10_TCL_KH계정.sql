@@ -11,7 +11,7 @@
                          
     COMMUT 하기 전까지 변경사항들을 하나의 트랜젝션에 담게됨
     커밋을 해야만이 실제 디비에 반영이 된다고 생각하면 됨!
-    - 트랜젝션의 대싱아 되는 SQL : INSSERT, UPDATE, DELETE (DML)
+    - 트랜젝션의 대상이 되는 SQL : INSSERT, UPDATE, DELETE (DML)
     
     COMMIT (트랜젝션 종료 후 확정)
     ROLLBACK (트랜젝션 취소)
